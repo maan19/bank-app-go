@@ -6,16 +6,16 @@ import (
 
 	"github.com/maan19/bank-app-go/api"
 	db "github.com/maan19/bank-app-go/db/sqlc"
-)
-
-const (
-	dbDriver = "postgres"
-	dbSource = "postgresql://postgres:secret@localhost:5433/simple_bank?sslmode=disable"
-	address  = "localhost:8080"
+	"github.com/maan19/bank-app-go/util"
 )
 
 func main() {
-	conn, err := sql.Open(dbDriver, dbSource)
+	config, err := util.Loadconfig(".")
+	if err != nil {
+		log.Fatal("ERROR loading configs", err)
+	}
+
+	conn, err := sql.Open(config.DBDriver, config.DBSource)
 	if err != nil {
 		log.Fatal("Error creating db:", err)
 	}
@@ -23,6 +23,6 @@ func main() {
 	store := db.NewSQLStore(conn)
 	server := api.NewServer(store)
 
-	server.Start(address)
+	server.Start(config.ServerAddress)
 
 }
