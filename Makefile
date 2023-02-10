@@ -16,10 +16,13 @@ migratedown:
 sqlc:
 	sqlc generate
 
+mockstore:
+	mockgen --build_flags=--mod=mod  -package mockdb -destination db/mock/store.go github.com/maan19/bank-app-go/db/sqlc  Store
+
 test:
 	go test -v -cover ./...
 
 server:
 	go run main.go
 
-.PHONY: postgres createdb dropdb migrateup migratedown sqlc test server
+.PHONY: postgres createdb dropdb migrateup migratedown sqlc mockstore test server

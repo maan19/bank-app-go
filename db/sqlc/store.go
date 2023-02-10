@@ -6,18 +6,27 @@ import (
 	"fmt"
 )
 
+// Store provides functions to execute db queries and transactions.
+type Store interface {
+	Querier
+	TransferTx(ctx context.Context, arg TransferTxParams) (TransferTxResult, error)
+}
+
+// SQLStore is an POSTGRESQL implementation of the Store interface
 type SQLStore struct {
 	db *sql.DB
 	*Queries
 }
 
-func NewSQLStore(db *sql.DB) *SQLStore {
+// NewSQLStore creates a new SQLStore
+func NewSQLStore(db *sql.DB) Store {
 	return &SQLStore{
 		db:      db,
 		Queries: New(db),
 	}
 }
 
+// Executes a function with a database transaction.
 func (store *SQLStore) execTX(ctx context.Context, fn func(*Queries) error) error {
 	tx, err := store.db.BeginTx(ctx, nil)
 	if err != nil {
