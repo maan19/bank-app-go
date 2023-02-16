@@ -129,3 +129,5 @@ func EqCreateUserParamsMatcher(arg db.CreateUserParams, password string) gomock.
 		arg, password,
 	}
 }
+
+//TO-DO: Add tests for loginUser
