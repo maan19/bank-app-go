@@ -20,9 +20,9 @@ import (
 func TestCreateTransfer(t *testing.T) {
 	amount := int64(10)
 
-	account1 := randomAccount()
-	account2 := randomAccount()
-	account3 := randomAccount()
+	account1 := randomAccount(util.RandomOwner())
+	account2 := randomAccount(util.RandomOwner())
+	account3 := randomAccount(util.RandomOwner())
 	account1.Currency = util.USD
 	account2.Currency = util.USD
 	account3.Currency = util.CAD
