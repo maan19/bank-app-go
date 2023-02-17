@@ -13,8 +13,8 @@ import (
 
 func newTestServer(t *testing.T, store db.Store) *Server {
 	config := util.Config{
-		TokenSymmetricKey:  util.RandomString(32),
-		AccesTokenDuraiton: time.Minute,
+		TokenSymmetricKey:   util.RandomString(32),
+		AccessTokenDuraiton: time.Minute,
 	}
 	server, err := NewServer(config, store)
 	require.NoError(t, err)
