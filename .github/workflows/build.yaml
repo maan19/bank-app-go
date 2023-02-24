@@ -1,7 +1,7 @@
 # This workflow will build a golang project
 # For more information see: https://docs.github.com/en/actions/automating-builds-and-tests/building-and-testing-go
 
-name: build
+name: build and deploy
 
 on:
   push:
@@ -16,6 +16,11 @@ jobs:
     steps:
       - name: Checkout repo
         uses: actions/checkout@v3
+
+      - uses: azure/setup-kubectl@v3
+        with:
+          version: 'v1.23.5' # default is latest stable
+        id: install
 
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v1
@@ -37,5 +42,16 @@ jobs:
           REPOSITORY: bank-app
           IMAGE_TAG: ${{ github.sha }}
         run: |
-          docker build -t $REGISTRY/$REPOSITORY:$IMAGE_TAG .
-          docker push $REGISTRY/$REPOSITORY:$IMAGE_TAG
+          docker build -t $REGISTRY/$REPOSITORY:$IMAGE_TAG -t $REGISTRY/$REPOSITORY:latest .
+          docker push -a $REGISTRY/$REPOSITORY:$IMAGE_TAG
+      
+      - name: Update Kubeconfig
+        run: aws eks update-kubeconfig --name bank-app --region us-west-2
+        
+      - name: Deploy to EKS
+        run: |
+          kubectl apply -f eks/aws-auth.yaml
+          kubectl apply -f eks/deployment.yaml
+          kubectl apply -f eks/service.yaml
+          kubectl apply -f eks/issuer.yaml
+          kubectl apply -f eks/ingress.yaml

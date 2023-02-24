@@ -16,7 +16,7 @@ spec:
     spec:
       containers:
       - name: simple-bank-api
-        image: 254780269103.dkr.ecr.us-west-2.amazonaws.com/bank-app:92be217dec11e521a36da25d97a29fbec279f6e0
+        image: 254780269103.dkr.ecr.us-west-2.amazonaws.com/bank-app:latest
         imagePullPolicy: Always
         ports:
         - containerPort: 8080
