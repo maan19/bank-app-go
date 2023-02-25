@@ -1,3 +1,4 @@
+DB_SOURCE= "postgresql://postgres:secret@localhost:5433/simple_bank?sslmode=disable"
 postgres:
 	docker run --name postgres-new --network bankapp-network -p 5433:5432   -e POSTGRES_PASSWORD=secret -d postgres:15.1-alpine
 
@@ -8,16 +9,22 @@ dropdb:
 	docker exec -it postgres-new  dropdb simple_bank -U postgres
 
 migrateup:
-	migrate -path db/migration -database "postgresql://postgres:secret@localhost:5433/simple_bank?sslmode=disable" -verbose up 
+	migrate -path db/migration -database "$(DB_SOURCE)" -verbose up 
 
 migrateup1:
-	migrate -path db/migration -database "postgresql://postgres:secret@localhost:5433/simple_bank?sslmode=disable" -verbose up 1
+	migrate -path db/migration -database "$(DB_SOURCE)" -verbose up 1
 
 migratedown:
-	migrate -path db/migration -database "postgresql://postgres:secret@localhost:5433/simple_bank?sslmode=disable" -verbose down
+	migrate -path db/migration -database "$(DB_SOURCE)" -verbose down
 
 migratedown1:
-	migrate -path db/migration -database "postgresql://postgres:secret@localhost:5433/simple_bank?sslmode=disable" -verbose down 1
+	migrate -path db/migration -database "$(DB_SOURCE)" -verbose down 1
+
+dbdocs:
+	dbdocs build doc/db.dbml
+
+db_schema:
+	dbml2sql --postgres -o doc/schema.sql doc/db.dbml
 
 sqlc:
 	sqlc generate
@@ -31,4 +38,4 @@ test:
 server:
 	go run main.go
 
-.PHONY: postgres createdb dropdb migrateup migrateup1 migratedown migratedown1 sqlc mock test server
+.PHONY: postgres createdb dropdb migrateup migrateup1 migratedown migratedown1 sqlc mock test server dbdocs db_schema
