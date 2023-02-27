@@ -12,7 +12,7 @@ option go_package = "github.com/maan19/bank-app-go/pb";
 option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_swagger) = {
 	info: {
 		title: "Bank App API";
-		version: "1.0";
+		version: "1.2";
 		contact: {
 			name: "Jagdeep Mann";
 			url: "https://github.com/maan19";
