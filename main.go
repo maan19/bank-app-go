@@ -7,6 +7,9 @@ import (
 	"net"
 	"net/http"
 
+	"github.com/golang-migrate/migrate/v4"
+	_ "github.com/golang-migrate/migrate/v4/database/postgres"
+	_ "github.com/golang-migrate/migrate/v4/source/file"
 	"github.com/grpc-ecosystem/grpc-gateway/v2/runtime"
 	"github.com/maan19/bank-app-go/api"
 	db "github.com/maan19/bank-app-go/db/sqlc"
@@ -30,6 +33,8 @@ func main() {
 	if err != nil {
 		log.Fatal("Error creating db:", err)
 	}
+
+	runDBMigration(config.MigrationURL, config.DBSource)
 
 	store := db.NewSQLStore(conn)
 	go runGatewayServer(config, store)
@@ -111,4 +116,17 @@ func runGinServer(config util.Config, store db.Store) {
 	}
 
 	server.Start(config.HTTPServerAddress)
+}
+
+func runDBMigration(migrationURL string, dbSource string) {
+	migration, err := migrate.New(migrationURL, dbSource)
+	if err != nil {
+		log.Fatal("cannot create new migrate instance")
+	}
+
+	if err = migration.Up(); err != nil && err != migrate.ErrNoChange {
+		log.Fatal("failed to run migrate up")
+	}
+
+	log.Println("db migrated successfully")
 }
