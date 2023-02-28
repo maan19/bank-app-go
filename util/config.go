@@ -14,6 +14,7 @@ type Config struct {
 	TokenSymmetricKey    string        `mapstructure:"TOKEN_SYMMETRIC_KEY"`
 	AccessTokenDuraiton  time.Duration `mapstructure:"ACCESS_TOKEN_DURATION"`
 	RefreshTokenDuraiton time.Duration `mapstructure:"REFRESH_TOKEN_DURATION"`
+	MigrationURL         string        `mapstructure:"MIGRATION_URL"`
 }
 
 func Loadconfig(path string) (config Config, err error) {
