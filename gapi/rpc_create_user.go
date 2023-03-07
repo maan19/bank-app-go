@@ -2,7 +2,9 @@ package gapi
 
 import (
 	"context"
+	"time"
 
+	"github.com/hibiken/asynq"
 	"github.com/lib/pq"
 	db "github.com/maan19/bank-app-go/db/sqlc"
 	"github.com/maan19/bank-app-go/pb"
@@ -47,7 +49,12 @@ func (server *Server) CreateUser(ctx context.Context, req *pb.CreateUserRequest)
 	taskPayload := &worker.PayloadSendVerifyEmail{
 		Username: arg.Username,
 	}
-	err = server.taskDistributor.DistributeTaskSendVerifyEmail(ctx, taskPayload)
+	opts := []asynq.Option{
+		asynq.Queue(worker.QueueCritical),
+		asynq.MaxRetry(3),
+		asynq.ProcessIn(10 * time.Second),
+	}
+	err = server.taskDistributor.DistributeTaskSendVerifyEmail(ctx, taskPayload, opts...)
 	if err != nil {
 		return nil, status.Errorf(codes.Internal, "failed to distribute task: %v", err)
 	}
