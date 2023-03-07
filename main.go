@@ -7,6 +7,7 @@ import (
 	"net/http"
 	"os"
 
+	"github.com/hibiken/asynq"
 	"github.com/rs/zerolog"
 	"github.com/rs/zerolog/log"
 
@@ -20,6 +21,7 @@ import (
 	"github.com/maan19/bank-app-go/gapi"
 	"github.com/maan19/bank-app-go/pb"
 	"github.com/maan19/bank-app-go/util"
+	"github.com/maan19/bank-app-go/worker"
 	"github.com/rakyll/statik/fs"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/reflection"
@@ -44,6 +46,11 @@ func main() {
 	runDBMigration(config.MigrationURL, config.DBSource)
 
 	store := db.NewSQLStore(conn)
+
+	redisOpt := asynq.RedisClientOpt{
+		Addr: config.RedisAddress,
+	}
+	taskDistributor := worker.NewRedisTaskDistributor(redisOpt)
 	go runGatewayServer(config, store)
 	runGrpcServer(config, store)
 }

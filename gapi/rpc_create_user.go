@@ -8,6 +8,7 @@ import (
 	"github.com/maan19/bank-app-go/pb"
 	"github.com/maan19/bank-app-go/util"
 	"github.com/maan19/bank-app-go/val"
+	"github.com/maan19/bank-app-go/worker"
 	"google.golang.org/genproto/googleapis/rpc/errdetails"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
@@ -41,6 +42,11 @@ func (server *Server) CreateUser(ctx context.Context, req *pb.CreateUserRequest)
 		}
 		return nil, status.Errorf(codes.Internal, "failed to create user: %v", err)
 	}
+
+	taskPayload := worker.PayloadSendVerifyEmail{
+		Email: user.Email,
+	}
+	server.taskDistributor.DistributeTaskSendVerifyEmail(ctx, user.Email, user.Username)
 
 	resp := &pb.CreateUserResponse{
 		User: convertUser(user),
