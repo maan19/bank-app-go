@@ -43,10 +43,14 @@ func (server *Server) CreateUser(ctx context.Context, req *pb.CreateUserRequest)
 		return nil, status.Errorf(codes.Internal, "failed to create user: %v", err)
 	}
 
-	taskPayload := worker.PayloadSendVerifyEmail{
-		Email: user.Email,
+	//TO-DO: Add these to a database transaction
+	taskPayload := &worker.PayloadSendVerifyEmail{
+		Username: arg.Username,
 	}
-	server.taskDistributor.DistributeTaskSendVerifyEmail(ctx, user.Email, user.Username)
+	err = server.taskDistributor.DistributeTaskSendVerifyEmail(ctx, taskPayload)
+	if err != nil {
+		return nil, status.Errorf(codes.Internal, "failed to distribute task: %v", err)
+	}
 
 	resp := &pb.CreateUserResponse{
 		User: convertUser(user),
